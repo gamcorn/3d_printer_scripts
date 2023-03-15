@@ -1,0 +1,46 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          moonraker
+# Default-Start:        2 3 4 5
+# Required-Stop:
+# Default-Stop:         0 1 6
+# Required-Start:    $local_fs $remote_fs klipper
+# Short-Description: moonraker
+# Description: moonraker
+### END INIT INFO
+. /lib/lsb/init-functions
+N="/etc/init.d/moonraker"
+PIDFILE=/var/run/moonraker.pid
+MOONRAKER_CONFIG=printer_data/config/moonraker.conf
+USERNAME=mini
+EXEC="/home/mini/moonraker-env/bin/python"
+EXEC_OPTS="/home/$USERNAME/moonraker/moonraker/moonraker.py -c /home/$USERNAME/$MOONRAKER_CONFIG -l /tmp/moonraker.log"
+set -e
+f_start ()
+{
+  start-stop-daemon --start --background --chuid $USERNAME --make-pidfile --pidfile $PIDFILE --exec $EXEC -- $EXEC_OPTS
+}
+f_stop ()
+{
+  start-stop-daemon --stop --pidfile $PIDFILE
+}
+case "$1" in
+  start)
+        f_start
+        ;;
+  stop)
+        f_stop
+        ;;
+  restart)
+        f_stop
+        sleep 1
+        f_start
+        ;;
+  reload|force-reload|status)
+        ;;
+  *)
+        echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+        exit 1
+        ;;
+esac
+exit 0
